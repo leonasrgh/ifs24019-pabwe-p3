@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panduan — DompetKu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body { font-family: 'Baloo 2', sans-serif; }</style>
+</head>
+<body class="bg-gradient-to-b from-amber-50 to-yellow-50 text-stone-700 min-h-screen">
+
+<header class="bg-white/80 backdrop-blur border-b-4 border-amber-300">
+  <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+    <h1 class="text-2xl font-extrabold text-amber-600">🐱 DompetKu</h1>
+    <nav class="flex gap-4 text-sm font-bold" aria-label="Navigasi halaman">
+      <a href="index.html" class="text-amber-700 hover:underline">Aplikasi</a>
+      <a href="panduan.html" class="text-amber-700 underline">Panduan</a>
+      <a href="tentang.html" class="text-amber-700 hover:underline">Tentang</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 py-6 space-y-4">
+  <h2 class="text-xl font-bold text-amber-700">📖 Panduan Pemakaian</h2>
+
+  <article class="bg-white rounded-2xl p-5 border-2 border-amber-100 shadow-sm">
+    <h3 class="font-bold text-amber-700 mb-2">💰 Expense Tracker</h3>
+    <ol class="list-decimal list-inside space-y-1 text-sm">
+      <li>Isi judul, kategori, jumlah (harus lebih dari 0), tipe, dan tanggal.</li>
+      <li>Klik <strong>Tambah Transaksi</strong>. Ringkasan saldo akan diperbarui.</li>
+      <li>Gunakan kolom cari, filter tipe/kategori, dan urutan untuk menyaring daftar.</li>
+      <li>Ikon ✎ untuk mengubah, ikon 🗑 untuk menghapus (ada konfirmasi).</li>
+    </ol>
+    <a href="index.html?tab=expense" class="inline-block mt-3 text-sm font-bold text-amber-600 underline">Buka Expense Tracker →</a>
+  </article>
+
+  <article class="bg-white rounded-2xl p-5 border-2 border-amber-100 shadow-sm">
+    <h3 class="font-bold text-amber-700 mb-2">🔖 Bookmark Manager</h3>
+    <ol class="list-decimal list-inside space-y-1 text-sm">
+      <li>Isi nama, URL (wajib diawali <code>http://</code> atau <code>https://</code>), dan kategori.</li>
+      <li>Klik nama bookmark untuk membuka tautan di tab baru.</li>
+      <li>Cari berdasarkan nama, URL, atau kategori, lalu urutkan sesuai kebutuhan.</li>
+    </ol>
+    <a href="index.html?tab=bookmark" class="inline-block mt-3 text-sm font-bold text-amber-600 underline">Buka Bookmark Manager →</a>
+  </article>
+
+  <article class="bg-white rounded-2xl p-5 border-2 border-amber-100 shadow-sm">
+    <h3 class="font-bold text-amber-700 mb-2">🧠 Quiz App</h3>
+    <ol class="list-decimal list-inside space-y-1 text-sm">
+      <li>Klik <strong>Mulai Kuis</strong>, lalu pilih satu jawaban per soal.</li>
+      <li>Skor dihitung otomatis. Skor tertinggi tersimpan di browser.</li>
+      <li>Klik <strong>Main Lagi</strong> untuk mengulang.</li>
+    </ol>
+    <a href="index.html?tab=quiz" class="inline-block mt-3 text-sm font-bold text-amber-600 underline">Buka Quiz App →</a>
+  </article>
+</main>
+
+<footer class="max-w-4xl mx-auto px-4 py-6 text-center text-xs text-stone-400">
+  Tugas Praktikum 3 PABWE · ifs24019
+</footer>
+
+</body>
+</html>
