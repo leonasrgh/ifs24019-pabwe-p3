@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tentang — DompetKu</title>
+<meta name="description" content="Informasi proyek DompetKu, tugas Praktikum 3 PABWE: teknologi, struktur file, dan fitur.">
+<meta name="theme-color" content="#b45309">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐱%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body { font-family: 'Baloo 2', sans-serif; }</style>
+</head>
+<body class="bg-gradient-to-b from-amber-50 to-yellow-50 text-stone-800 min-h-screen">
+
+<header class="bg-white border-b-4 border-amber-300">
+  <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+    <p class="text-2xl font-extrabold text-amber-700"><span aria-hidden="true">🐱</span> DompetKu</p>
+    <nav class="flex gap-4 text-sm font-bold" aria-label="Navigasi halaman">
+      <a href="index.html" class="text-amber-800 hover:underline">Aplikasi</a>
+      <a href="panduan.html" class="text-amber-800 hover:underline">Panduan</a>
+      <a href="tentang.html" class="text-amber-800 underline" aria-current="page">Tentang</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 py-6 space-y-4">
+  <h1 class="text-xl font-bold text-amber-700">ℹ️ Tentang Proyek</h1>
+
+  <section class="bg-white rounded-2xl p-5 border-2 border-amber-100 shadow-sm text-sm space-y-2">
+    <h2 class="sr-only">Identitas proyek</h2>
+    <p><strong>Nama proyek:</strong> DompetKu (Tugas Praktikum 3 PABWE)</p>
+    <p><strong>NIM:</strong> ifs24019</p>
+    <p><strong>Nama:</strong> [isi nama Anda]</p>
+    <p><strong>Fitur:</strong> Expense Tracker, Bookmark Manager, dan Quiz App dalam satu halaman bertab.</p>
+  </section>
+
+  <section class="bg-white rounded-2xl p-5 border-2 border-amber-100 shadow-sm text-sm">
+    <h2 class="font-bold text-amber-700 mb-2">Teknologi</h2>
+    <ul class="list-disc list-inside space-y-1">
+      <li>HTML5 semantik dan JavaScript murni (tanpa backend dan tanpa fetch)</li>
+      <li>Tailwind CSS via CDN dan Google Fonts (Baloo 2)</li>
+      <li>localStorage dengan key terpisah per fitur</li>
+      <li>State tab lewat query URL (<code>?tab=expense|bookmark|quiz</code>)</li>
+    </ul>
+  </section>
+
+  <section class="bg-white rounded-2xl p-5 border-2 border-amber-100 shadow-sm text-sm">
+    <h2 class="font-bold text-amber-700 mb-2">Struktur file</h2>
+    <pre tabindex="0" class="overflow-x-auto text-xs bg-amber-50 text-stone-800 rounded-xl p-3">index.html           → aplikasi (tab, panel, modal)
+panduan.html         → panduan pemakaian
+tentang.html         → info proyek
+assets/config.js     → konstanta
+assets/quiz-data.js  → data soal
+assets/script.js     → seluruh logika</pre>
+  </section>
+</main>
+
+<footer class="max-w-4xl mx-auto px-4 py-6 text-center text-xs text-stone-600">
+  Tugas Praktikum 3 PABWE · ifs24019
+</footer>
+
+</body>
+</html>

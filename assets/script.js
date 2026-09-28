@@ -1,8 +1,7 @@
 /**
- * DompetKu — assets/script.js
- * Tugas PABWE Praktikum 3
- * Fitur: Tab Switcher (state via query URL), Expense Tracker,
- *        Bookmark Manager, Quiz App
+ * script.js — seluruh logika aplikasi
+ * Bergantung pada: assets/config.js dan assets/quiz-data.js
+ * (harus dimuat lebih dulu di index.html)
  */
 
 /* ========================================================
@@ -22,7 +21,7 @@ function generateId() {
 }
 
 function escapeHtml(str = '') {
-  return str.replace(/[&<>"']/g, (c) => ({
+  return String(str).replace(/[&<>"']/g, (c) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
   }[c]));
 }
@@ -36,12 +35,22 @@ function showToast(message) {
   showToast._timer = setTimeout(() => el.classList.add('hidden'), 2500);
 }
 
+// Buka/tutup modal generik (class 'hidden' + 'flex')
+function openModal(modalEl, focusSelector) {
+  modalEl.classList.remove('hidden');
+  modalEl.classList.add('flex');
+  const target = focusSelector ? $(focusSelector, modalEl) : null;
+  if (target) target.focus();
+}
+
+function closeModal(modalEl) {
+  modalEl.classList.add('hidden');
+  modalEl.classList.remove('flex');
+}
+
 /* ========================================================
    1. TAB SWITCHER — state disimpan di query URL (?tab=...)
    ======================================================== */
-const VALID_TABS = ['expense', 'bookmark', 'quiz'];
-const DEFAULT_TAB = 'expense';
-
 function getActiveTabFromUrl() {
   const tab = new URLSearchParams(window.location.search).get('tab');
   return VALID_TABS.includes(tab) ? tab : DEFAULT_TAB;
@@ -53,18 +62,23 @@ function setActiveTab(tab, { pushHistory = true } = {}) {
   $all('.tab-panel').forEach((panel) => {
     panel.classList.toggle('hidden', panel.dataset.tabPanel !== tab);
   });
-    $all('.tab-btn').forEach((btn) => {
+
+  $all('.tab-btn').forEach((btn) => {
     const isActive = btn.dataset.tab === tab;
-    btn.classList.toggle('bg-amber-500', isActive);
+    btn.classList.toggle('bg-amber-700', isActive);
     btn.classList.toggle('text-white', isActive);
     btn.classList.toggle('bg-amber-100', !isActive);
-    btn.classList.toggle('text-amber-700', !isActive);
+    btn.classList.toggle('text-amber-900', !isActive);
     btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
   });
 
   const url = new URL(window.location.href);
   url.searchParams.set('tab', tab);
-  pushHistory ? history.pushState({ tab }, '', url) : history.replaceState({ tab }, '', url);
+  if (pushHistory) {
+    history.pushState({ tab }, '', url);
+  } else {
+    history.replaceState({ tab }, '', url);
+  }
 }
 
 function initTabs() {
@@ -80,8 +94,6 @@ function initTabs() {
 /* ========================================================
    2. EXPENSE TRACKER
    ======================================================== */
-const EXPENSE_STORAGE_KEY = 'pabwe_p3_expense_transactions';
-
 let expenseState = {
   transactions: [],
   search: '',
@@ -161,10 +173,15 @@ function renderExpenseSummary() {
 function renderExpenseCategoryOptions() {
   const select = $('#expense-filter-category');
   const categories = [...new Set(expenseState.transactions.map((t) => t.category))];
-  const current = select.value;
+  const current = expenseState.filterCategory;
   select.innerHTML = '<option value="all">Semua kategori</option>' +
     categories.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-  select.value = categories.includes(current) ? current : 'all';
+  if (categories.includes(current)) {
+    select.value = current;
+  } else {
+    select.value = 'all';
+    expenseState.filterCategory = 'all';
+  }
 }
 
 function renderExpenseList() {
@@ -172,29 +189,37 @@ function renderExpenseList() {
   const items = getFilteredExpenses();
 
   if (expenseState.transactions.length === 0) {
-    container.innerHTML = `<p class="text-center text-slate-400 py-8">Belum ada transaksi. Tambahkan transaksi pertama Anda.</p>`;
+    container.innerHTML = '<p class="text-center text-stone-600 py-8">Belum ada transaksi. Tambahkan transaksi pertama Anda.</p>';
     return;
   }
   if (items.length === 0) {
-    container.innerHTML = `<p class="text-center text-slate-400 py-8">Tidak ada transaksi yang cocok.</p>`;
+    container.innerHTML = '<p class="text-center text-stone-600 py-8">Tidak ada transaksi yang cocok.</p>';
     return;
   }
 
   container.innerHTML = '';
   items.forEach((t) => {
     const row = document.createElement('div');
-    row.className = 'flex items-center justify-between gap-3 border-b border-slate-100 py-3 last:border-0';
+    row.className = 'flex items-center justify-between gap-3 border-b border-amber-100 py-3 last:border-0';
     row.innerHTML = `
       <div class="min-w-0">
-        <p class="font-medium text-slate-800 truncate">${escapeHtml(t.title)}</p>
-        <p class="text-xs text-slate-400">${escapeHtml(t.category)} • ${new Date(t.date).toLocaleDateString('id-ID')}</p>
+        <p class="font-medium text-stone-800 truncate">${escapeHtml(t.title)}</p>
+        <p class="text-xs text-stone-600">${escapeHtml(t.category)} • ${new Date(t.date).toLocaleDateString('id-ID')}</p>
       </div>
-      <div class="flex items-center gap-3 shrink-0">
-        <span class="text-sm font-semibold ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}">
+      <div class="flex items-center gap-1 shrink-0">
+        <span class="text-sm font-semibold mr-2 ${t.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}">
           ${t.type === 'income' ? '+' : '-'} ${formatRupiah(t.amount)}
         </span>
-        <button data-action="edit" data-id="${t.id}" class="text-slate-400 hover:text-indigo-600">✎</button>
-        <button data-action="delete" data-id="${t.id}" class="text-slate-400 hover:text-rose-600">🗑</button>
+        <button type="button" data-action="edit" data-id="${t.id}"
+                aria-label="Ubah transaksi ${escapeHtml(t.title)}"
+                class="h-11 w-11 inline-flex items-center justify-center rounded-full text-stone-600 hover:bg-amber-100">
+          <span aria-hidden="true">✎</span>
+        </button>
+        <button type="button" data-action="delete" data-id="${t.id}"
+                aria-label="Hapus transaksi ${escapeHtml(t.title)}"
+                class="h-11 w-11 inline-flex items-center justify-center rounded-full text-stone-600 hover:bg-rose-100">
+          <span aria-hidden="true">🗑</span>
+        </button>
       </div>`;
     container.appendChild(row);
   });
@@ -215,26 +240,22 @@ function openExpenseEditModal(id) {
   $('#expense-edit-amount').value = item.amount;
   $('#expense-edit-type').value = item.type;
   $('#expense-edit-date').value = item.date;
-  $('#expense-edit-modal').classList.remove('hidden');
-  $('#expense-edit-modal').classList.add('flex');
+  openModal($('#expense-edit-modal'), '#expense-edit-title');
 }
 
 function closeExpenseEditModal() {
   expenseState.editingId = null;
-  $('#expense-edit-modal').classList.add('hidden');
-  $('#expense-edit-modal').classList.remove('flex');
+  closeModal($('#expense-edit-modal'));
 }
 
 function openExpenseDeleteModal(id) {
   expenseState.deletingId = id;
-  $('#expense-delete-modal').classList.remove('hidden');
-  $('#expense-delete-modal').classList.add('flex');
+  openModal($('#expense-delete-modal'), '#expense-delete-cancel');
 }
 
 function closeExpenseDeleteModal() {
   expenseState.deletingId = null;
-  $('#expense-delete-modal').classList.add('hidden');
-  $('#expense-delete-modal').classList.remove('flex');
+  closeModal($('#expense-delete-modal'));
 }
 
 function initExpenseTracker() {
@@ -312,8 +333,6 @@ function initExpenseTracker() {
 /* ========================================================
    3. BOOKMARK MANAGER
    ======================================================== */
-const BOOKMARK_STORAGE_KEY = 'pabwe_p3_bookmark_items';
-
 let bookmarkState = {
   items: [],
   search: '',
@@ -378,29 +397,37 @@ function renderBookmarkList() {
   const items = getFilteredBookmarks();
 
   if (bookmarkState.items.length === 0) {
-    container.innerHTML = `<p class="col-span-full text-center text-slate-400 py-8">Belum ada bookmark tersimpan.</p>`;
+    container.innerHTML = '<p class="col-span-full text-center text-stone-600 py-8">Belum ada bookmark tersimpan.</p>';
     return;
   }
   if (items.length === 0) {
-    container.innerHTML = `<p class="col-span-full text-center text-slate-400 py-8">Tidak ada bookmark yang cocok.</p>`;
+    container.innerHTML = '<p class="col-span-full text-center text-stone-600 py-8">Tidak ada bookmark yang cocok.</p>';
     return;
   }
 
   container.innerHTML = '';
   items.forEach((b) => {
     const card = document.createElement('div');
-    card.className = 'flex items-start justify-between gap-3 border border-slate-100 bg-white rounded-xl p-4';
+    card.className = 'flex items-start justify-between gap-3 border-2 border-amber-100 bg-white rounded-2xl p-4';
     card.innerHTML = `
       <div class="min-w-0">
         <a href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer"
-           class="font-medium text-indigo-600 hover:underline break-words">${escapeHtml(b.name)}</a>
-        <p class="text-xs text-slate-400 truncate">${escapeHtml(b.url)}</p>
-        <span class="inline-block mt-1 text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">${escapeHtml(b.category)}</span>
-        ${b.note ? `<p class="text-sm text-slate-500 mt-1">${escapeHtml(b.note)}</p>` : ''}
+           class="font-medium text-amber-700 underline hover:text-amber-900 break-words">${escapeHtml(b.name)}</a>
+        <p class="text-xs text-stone-600 truncate">${escapeHtml(b.url)}</p>
+        <span class="inline-block mt-1 text-xs bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">${escapeHtml(b.category)}</span>
+        ${b.note ? `<p class="text-sm text-stone-600 mt-1">${escapeHtml(b.note)}</p>` : ''}
       </div>
-      <div class="flex items-center gap-3 shrink-0">
-        <button data-action="edit" data-id="${b.id}" class="text-slate-400 hover:text-indigo-600">✎</button>
-        <button data-action="delete" data-id="${b.id}" class="text-slate-400 hover:text-rose-600">🗑</button>
+      <div class="flex items-center gap-1 shrink-0">
+        <button type="button" data-action="edit" data-id="${b.id}"
+                aria-label="Ubah bookmark ${escapeHtml(b.name)}"
+                class="h-11 w-11 inline-flex items-center justify-center rounded-full text-stone-600 hover:bg-amber-100">
+          <span aria-hidden="true">✎</span>
+        </button>
+        <button type="button" data-action="delete" data-id="${b.id}"
+                aria-label="Hapus bookmark ${escapeHtml(b.name)}"
+                class="h-11 w-11 inline-flex items-center justify-center rounded-full text-stone-600 hover:bg-rose-100">
+          <span aria-hidden="true">🗑</span>
+        </button>
       </div>`;
     container.appendChild(card);
   });
@@ -414,26 +441,22 @@ function openBookmarkEditModal(id) {
   $('#bookmark-edit-url').value = item.url;
   $('#bookmark-edit-category').value = item.category;
   $('#bookmark-edit-note').value = item.note || '';
-  $('#bookmark-edit-modal').classList.remove('hidden');
-  $('#bookmark-edit-modal').classList.add('flex');
+  openModal($('#bookmark-edit-modal'), '#bookmark-edit-name');
 }
 
 function closeBookmarkEditModal() {
   bookmarkState.editingId = null;
-  $('#bookmark-edit-modal').classList.add('hidden');
-  $('#bookmark-edit-modal').classList.remove('flex');
+  closeModal($('#bookmark-edit-modal'));
 }
 
 function openBookmarkDeleteModal(id) {
   bookmarkState.deletingId = id;
-  $('#bookmark-delete-modal').classList.remove('hidden');
-  $('#bookmark-delete-modal').classList.add('flex');
+  openModal($('#bookmark-delete-modal'), '#bookmark-delete-cancel');
 }
 
 function closeBookmarkDeleteModal() {
   bookmarkState.deletingId = null;
-  $('#bookmark-delete-modal').classList.add('hidden');
-  $('#bookmark-delete-modal').classList.remove('flex');
+  closeModal($('#bookmark-delete-modal'));
 }
 
 function initBookmarkManager() {
@@ -501,18 +524,6 @@ function initBookmarkManager() {
 /* ========================================================
    4. QUIZ APP
    ======================================================== */
-const QUIZ_HIGH_SCORE_KEY = 'pabwe_p3_quiz_high_score';
-
-// Soal disimpan sebagai array of object (bukan hardcode per elemen HTML)
-const QUIZ_QUESTIONS = [
-  { question: 'Tag HTML apa yang digunakan untuk membuat tautan?', options: ['<link>', '<a>', '<href>', '<nav>'], answer: 1 },
-  { question: 'Properti CSS untuk mengubah warna teks adalah?', options: ['background-color', 'text-color', 'color', 'font-color'], answer: 2 },
-  { question: 'Cara mendeklarasikan variabel yang tidak bisa diubah nilainya di JS?', options: ['var', 'let', 'const', 'static'], answer: 2 },
-  { question: 'Method array untuk menambah elemen di akhir array adalah?', options: ['push()', 'pop()', 'shift()', 'unshift()'], answer: 0 },
-  { question: 'Objek browser untuk menyimpan data permanen di sisi klien adalah?', options: ['sessionStorage', 'cookie', 'localStorage', 'cache'], answer: 2 },
-  { question: 'Selector untuk memilih elemen pertama yang cocok di JS adalah?', options: ['querySelectorAll', 'getElementById', 'querySelector', 'getElementsByClass'], answer: 2 },
-];
-
 let quizState = { currentIndex: 0, score: 0, answered: false, finished: false };
 
 function loadQuizHighScore() {
@@ -546,7 +557,7 @@ function renderQuizQuestion() {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.dataset.index = idx;
-    btn.className = 'quiz-option w-full text-left border border-slate-200 rounded-lg px-4 py-3 hover:border-indigo-400 transition';
+    btn.className = 'quiz-option w-full text-left border-2 border-amber-200 rounded-xl px-4 py-3 text-stone-800 hover:border-amber-500 transition';
     btn.textContent = opt;
     optionsContainer.appendChild(btn);
   });
@@ -564,16 +575,17 @@ function handleQuizAnswer(selectedIndex) {
   const buttons = $all('.quiz-option');
   buttons.forEach((btn) => { btn.disabled = true; });
 
+  const feedback = $('#quiz-feedback');
   if (selectedIndex === q.answer) {
     quizState.score += 1;
-    buttons[selectedIndex].classList.add('border-emerald-500', 'bg-emerald-50');
-    $('#quiz-feedback').textContent = 'Benar!';
-    $('#quiz-feedback').className = 'text-emerald-600 font-medium mt-2';
+    buttons[selectedIndex].classList.add('border-emerald-600', 'bg-emerald-50');
+    feedback.textContent = 'Benar!';
+    feedback.className = 'text-emerald-700 font-medium mt-2';
   } else {
-    buttons[selectedIndex].classList.add('border-rose-500', 'bg-rose-50');
-    buttons[q.answer].classList.add('border-emerald-500', 'bg-emerald-50');
-    $('#quiz-feedback').textContent = 'Kurang tepat.';
-    $('#quiz-feedback').className = 'text-rose-600 font-medium mt-2';
+    buttons[selectedIndex].classList.add('border-rose-600', 'bg-rose-50');
+    buttons[q.answer].classList.add('border-emerald-600', 'bg-emerald-50');
+    feedback.textContent = 'Kurang tepat.';
+    feedback.className = 'text-rose-700 font-medium mt-2';
   }
 
   $('#quiz-score-live').textContent = `Skor: ${quizState.score}`;

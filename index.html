@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DompetKu — Tugas PABWE Praktikum 3</title>
+<meta name="description" content="DompetKu: catat pengeluaran harian, kelola bookmark, dan main kuis interaktif dalam satu halaman. Tugas Praktikum 3 PABWE.">
+<meta name="theme-color" content="#b45309">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐱%3C/text%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,33 +15,34 @@
 
 <style>
   body { font-family: 'Baloo 2', sans-serif; }
-  .quiz-option:disabled { cursor: not-allowed; opacity: 0.8; }
+  ::placeholder { color: #78716c; opacity: 1; }
+  .quiz-option:disabled { cursor: not-allowed; opacity: 0.85; }
   .mascot-float { animation: float 3s ease-in-out infinite; }
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-6px); }
   }
+  @media (prefers-reduced-motion: reduce) {
+    .mascot-float { animation: none; }
+  }
 </style>
 </head>
-<body class="bg-gradient-to-b from-amber-50 to-yellow-50 text-stone-700 min-h-screen">
+<body class="bg-gradient-to-b from-amber-50 to-yellow-50 text-stone-800 min-h-screen">
 
 <!-- ===================== HEADER + NAV TAB ===================== -->
-<header class="bg-white/80 backdrop-blur border-b-4 border-amber-300 sticky top-0 z-10">
+<header class="bg-white border-b-4 border-amber-300 sticky top-0 z-10">
   <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-    <h1 class="text-2xl font-extrabold text-amber-600 flex items-center gap-2">
-      <span class="mascot-float text-3xl">🐱</span> DompetKu
-      <span class="text-sm font-medium text-stone-400 hidden sm:inline">si kucing hitung duit</span>
+    <h1 class="text-2xl font-extrabold text-amber-700 flex items-center gap-2">
+      <span class="mascot-float text-3xl" aria-hidden="true">🐱</span> DompetKu
+      <span class="text-sm font-medium text-stone-600 hidden sm:inline">si kucing hitung duit</span>
     </h1>
-    <nav class="flex gap-2 flex-wrap" role="tablist" aria-label="Navigasi fitur">
-      <button class="tab-btn px-4 py-2 rounded-full text-sm font-bold bg-amber-100 text-amber-700 transition" data-tab="expense" role="tab">
-        💰 Pengeluaran
-      </button>
-      <button class="tab-btn px-4 py-2 rounded-full text-sm font-bold bg-amber-100 text-amber-700 transition" data-tab="bookmark" role="tab">
-        🔖 Bookmark
-      </button>
-      <button class="tab-btn px-4 py-2 rounded-full text-sm font-bold bg-amber-100 text-amber-700 transition" data-tab="quiz" role="tab">
-        🧠 Kuis
-      </button>
+    <nav class="flex gap-2 flex-wrap" role="tablist" aria-label="Fitur aplikasi">
+      <button id="tab-expense" class="tab-btn px-4 py-2 rounded-full text-sm font-bold bg-amber-100 text-amber-900 transition"
+              data-tab="expense" role="tab" aria-selected="false" aria-controls="panel-expense">💰 Pengeluaran</button>
+      <button id="tab-bookmark" class="tab-btn px-4 py-2 rounded-full text-sm font-bold bg-amber-100 text-amber-900 transition"
+              data-tab="bookmark" role="tab" aria-selected="false" aria-controls="panel-bookmark">🔖 Bookmark</button>
+      <button id="tab-quiz" class="tab-btn px-4 py-2 rounded-full text-sm font-bold bg-amber-100 text-amber-900 transition"
+              data-tab="quiz" role="tab" aria-selected="false" aria-controls="panel-quiz">🧠 Kuis</button>
     </nav>
   </div>
 </header>
@@ -46,55 +50,73 @@
 <main class="max-w-4xl mx-auto px-4 py-6">
 
   <!-- ===================== PANEL: EXPENSE TRACKER ===================== -->
-  <section id="panel-expense" class="tab-panel" data-tab-panel="expense">
+  <section id="panel-expense" class="tab-panel" data-tab-panel="expense" role="tabpanel" aria-labelledby="tab-expense">
     <h2 class="text-xl font-bold mb-4 text-amber-700">🐷 Catatan Pengeluaran Harian</h2>
 
-    <!-- Ringkasan -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
       <div class="bg-white rounded-2xl p-4 border-2 border-emerald-100 shadow-sm">
-        <p class="text-xs text-stone-400">💵 Total Pemasukan</p>
-        <p id="expense-total-income" class="text-lg font-extrabold text-emerald-600">Rp0</p>
+        <p class="text-xs text-stone-600">💵 Total Pemasukan</p>
+        <p id="expense-total-income" class="text-lg font-extrabold text-emerald-700">Rp0</p>
       </div>
       <div class="bg-white rounded-2xl p-4 border-2 border-rose-100 shadow-sm">
-        <p class="text-xs text-stone-400">💸 Total Pengeluaran</p>
-        <p id="expense-total-expense" class="text-lg font-extrabold text-rose-500">Rp0</p>
+        <p class="text-xs text-stone-600">💸 Total Pengeluaran</p>
+        <p id="expense-total-expense" class="text-lg font-extrabold text-rose-700">Rp0</p>
       </div>
       <div class="bg-white rounded-2xl p-4 border-2 border-amber-200 shadow-sm">
-        <p class="text-xs text-stone-400">🐖 Saldo Celengan</p>
-        <p id="expense-total-balance" class="text-lg font-extrabold text-amber-600">Rp0</p>
+        <p class="text-xs text-stone-600">🐖 Saldo Celengan</p>
+        <p id="expense-total-balance" class="text-lg font-extrabold text-amber-700">Rp0</p>
       </div>
     </div>
 
-    <!-- Form tambah transaksi -->
     <form id="expense-form" class="bg-white rounded-2xl p-4 border-2 border-amber-100 shadow-sm mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <input id="expense-title" type="text" placeholder="Judul / deskripsi" required
-             class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
-      <input id="expense-category" type="text" placeholder="Kategori (mis. Makan, Jajan Kucing)" required
-             class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
-      <input id="expense-amount" type="number" min="1" step="1" placeholder="Jumlah (Rp)" required
-             class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
-      <select id="expense-type" class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
-        <option value="expense">Pengeluaran</option>
-        <option value="income">Pemasukan</option>
-      </select>
-      <input id="expense-date" type="date" required class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
-      <button type="submit" class="bg-amber-500 text-white rounded-xl px-3 py-2 text-sm font-bold hover:bg-amber-600 transition">
+      <div>
+        <label for="expense-title" class="block text-xs font-bold text-stone-700 mb-1">Judul transaksi</label>
+        <input id="expense-title" name="title" type="text" placeholder="Mis. Makan siang" required autocomplete="off"
+               class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
+      </div>
+      <div>
+        <label for="expense-category" class="block text-xs font-bold text-stone-700 mb-1">Kategori</label>
+        <input id="expense-category" name="category" type="text" placeholder="Mis. Makan, Jajan Kucing" required autocomplete="off"
+               class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
+      </div>
+      <div>
+        <label for="expense-amount" class="block text-xs font-bold text-stone-700 mb-1">Jumlah (Rp)</label>
+        <input id="expense-amount" name="amount" type="number" min="1" step="1" placeholder="Mis. 25000" required autocomplete="off"
+               class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
+      </div>
+      <div>
+        <label for="expense-type" class="block text-xs font-bold text-stone-700 mb-1">Tipe</label>
+        <select id="expense-type" name="type"
+                class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
+          <option value="expense">Pengeluaran</option>
+          <option value="income">Pemasukan</option>
+        </select>
+      </div>
+      <div>
+        <label for="expense-date" class="block text-xs font-bold text-stone-700 mb-1">Tanggal</label>
+        <input id="expense-date" name="date" type="date" required
+               class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
+      </div>
+      <button type="submit" class="sm:self-end bg-amber-700 text-white rounded-xl px-3 py-2 text-sm font-bold hover:bg-amber-800 transition">
         + Tambah Transaksi
       </button>
     </form>
 
-    <!-- Toolbar cari/filter/sort -->
     <div class="flex flex-col sm:flex-row gap-2 mb-3">
-      <input id="expense-search" type="text" placeholder="🔍 Cari judul transaksi..."
+      <label for="expense-search" class="sr-only">Cari judul transaksi</label>
+      <input id="expense-search" name="search" type="text" placeholder="🔍 Cari judul transaksi..." autocomplete="off"
              class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm flex-1 focus:border-amber-400 outline-none">
+      <label for="expense-filter-type" class="sr-only">Filter tipe transaksi</label>
       <select id="expense-filter-type" class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
         <option value="all">Semua tipe</option>
         <option value="income">Pemasukan</option>
         <option value="expense">Pengeluaran</option>
       </select>
+      <label for="expense-filter-category" class="sr-only">Filter kategori</label>
       <select id="expense-filter-category" class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
         <option value="all">Semua kategori</option>
       </select>
+      <label for="expense-sort" class="sr-only">Urutkan transaksi</label>
       <select id="expense-sort" class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
         <option value="newest">Terbaru</option>
         <option value="oldest">Terlama</option>
@@ -103,31 +125,44 @@
       </select>
     </div>
 
-    <!-- Daftar transaksi -->
     <div id="expense-list" class="bg-white rounded-2xl p-4 border-2 border-amber-100 shadow-sm"></div>
   </section>
 
   <!-- ===================== PANEL: BOOKMARK MANAGER ===================== -->
-  <section id="panel-bookmark" class="tab-panel hidden" data-tab-panel="bookmark">
+  <section id="panel-bookmark" class="tab-panel hidden" data-tab-panel="bookmark" role="tabpanel" aria-labelledby="tab-bookmark">
     <h2 class="text-xl font-bold mb-4 text-amber-700">🔖 Bookmark / Link Manager</h2>
 
     <form id="bookmark-form" class="bg-white rounded-2xl p-4 border-2 border-amber-100 shadow-sm mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <input id="bookmark-name" type="text" placeholder="Nama / judul" required
-             class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
-      <input id="bookmark-url" type="text" placeholder="https://..." required
-             class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
-      <input id="bookmark-category" type="text" placeholder="Kategori / tag" required
-             class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
-      <input id="bookmark-note" type="text" placeholder="Catatan singkat (opsional)"
-             class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
-      <button type="submit" class="sm:col-span-2 bg-amber-500 text-white rounded-xl px-3 py-2 text-sm font-bold hover:bg-amber-600 transition">
+      <div>
+        <label for="bookmark-name" class="block text-xs font-bold text-stone-700 mb-1">Nama / judul</label>
+        <input id="bookmark-name" name="name" type="text" placeholder="Mis. Dokumentasi MDN" required autocomplete="off"
+               class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
+      </div>
+      <div>
+        <label for="bookmark-url" class="block text-xs font-bold text-stone-700 mb-1">URL (http/https)</label>
+        <input id="bookmark-url" name="url" type="text" placeholder="https://..." required autocomplete="off"
+               class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
+      </div>
+      <div>
+        <label for="bookmark-category" class="block text-xs font-bold text-stone-700 mb-1">Kategori / tag</label>
+        <input id="bookmark-category" name="category" type="text" placeholder="Mis. Belajar" required autocomplete="off"
+               class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
+      </div>
+      <div>
+        <label for="bookmark-note" class="block text-xs font-bold text-stone-700 mb-1">Catatan (opsional)</label>
+        <input id="bookmark-note" name="note" type="text" placeholder="Catatan singkat" autocomplete="off"
+               class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm focus:border-amber-400 outline-none">
+      </div>
+      <button type="submit" class="sm:col-span-2 bg-amber-700 text-white rounded-xl px-3 py-2 text-sm font-bold hover:bg-amber-800 transition">
         + Tambah Bookmark
       </button>
     </form>
 
     <div class="flex flex-col sm:flex-row gap-2 mb-3">
-      <input id="bookmark-search" type="text" placeholder="🔍 Cari nama / URL / kategori..."
+      <label for="bookmark-search" class="sr-only">Cari bookmark</label>
+      <input id="bookmark-search" name="search" type="text" placeholder="🔍 Cari nama / URL / kategori..." autocomplete="off"
              class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm flex-1 focus:border-amber-400 outline-none">
+      <label for="bookmark-sort" class="sr-only">Urutkan bookmark</label>
       <select id="bookmark-sort" class="border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
         <option value="newest">Terbaru</option>
         <option value="name-asc">Judul A-Z</option>
@@ -139,37 +174,37 @@
   </section>
 
   <!-- ===================== PANEL: QUIZ APP ===================== -->
-  <section id="panel-quiz" class="tab-panel hidden" data-tab-panel="quiz">
+  <section id="panel-quiz" class="tab-panel hidden" data-tab-panel="quiz" role="tabpanel" aria-labelledby="tab-quiz">
     <h2 class="text-xl font-bold mb-4 text-amber-700">🧠 Kuis Interaktif</h2>
 
     <div id="quiz-start-screen" class="bg-white rounded-2xl p-6 border-2 border-amber-100 shadow-sm text-center">
-      <p class="text-4xl mb-2">🏆</p>
-      <p class="text-stone-400 mb-1">High score saat ini:</p>
-      <p id="quiz-high-score-start" class="text-3xl font-extrabold text-amber-600 mb-4">0</p>
-      <button id="quiz-start-btn" class="bg-amber-500 text-white rounded-full px-6 py-2 text-sm font-bold hover:bg-amber-600 transition">
+      <p class="text-4xl mb-2" aria-hidden="true">🏆</p>
+      <p class="text-stone-600 mb-1">High score saat ini:</p>
+      <p id="quiz-high-score-start" class="text-3xl font-extrabold text-amber-700 mb-4">0</p>
+      <button id="quiz-start-btn" type="button" class="bg-amber-700 text-white rounded-full px-6 py-2 text-sm font-bold hover:bg-amber-800 transition">
         🐱 Mulai Kuis
       </button>
     </div>
 
     <div id="quiz-question-screen" class="bg-white rounded-2xl p-6 border-2 border-amber-100 shadow-sm hidden">
-      <div class="flex justify-between text-xs text-stone-400 mb-3">
+      <div class="flex justify-between text-xs text-stone-600 mb-3">
         <span id="quiz-progress"></span>
         <span id="quiz-score-live"></span>
       </div>
-      <p id="quiz-question-text" class="font-bold mb-4 text-stone-700"></p>
+      <p id="quiz-question-text" class="font-bold mb-4 text-stone-800"></p>
       <div id="quiz-options" class="space-y-2"></div>
-      <p id="quiz-feedback" class="mt-2"></p>
-      <button id="quiz-next-btn" class="mt-4 bg-amber-500 text-white rounded-full px-4 py-2 text-sm font-bold hidden">
+      <p id="quiz-feedback" role="status" aria-live="polite" class="mt-2"></p>
+      <button id="quiz-next-btn" type="button" class="mt-4 bg-amber-700 text-white rounded-full px-4 py-2 text-sm font-bold hover:bg-amber-800 hidden">
         Soal Berikutnya →
       </button>
     </div>
 
     <div id="quiz-result-screen" class="bg-white rounded-2xl p-6 border-2 border-amber-100 shadow-sm text-center hidden">
-      <p class="text-4xl mb-2">🎉</p>
-      <p class="text-stone-400 mb-1">Skor akhir Anda</p>
-      <p id="quiz-final-score" class="text-3xl font-extrabold text-amber-600 mb-3">0 / 0</p>
-      <p class="text-sm text-stone-400 mb-4">🏆 High score: <span id="quiz-high-score-result">0</span></p>
-      <button id="quiz-restart-btn" class="bg-amber-500 text-white rounded-full px-6 py-2 text-sm font-bold hover:bg-amber-600 transition">
+      <p class="text-4xl mb-2" aria-hidden="true">🎉</p>
+      <p class="text-stone-600 mb-1">Skor akhir Anda</p>
+      <p id="quiz-final-score" class="text-3xl font-extrabold text-amber-700 mb-3">0 / 0</p>
+      <p class="text-sm text-stone-600 mb-4">🏆 High score: <span id="quiz-high-score-result">0</span></p>
+      <button id="quiz-restart-btn" type="button" class="bg-amber-700 text-white rounded-full px-6 py-2 text-sm font-bold hover:bg-amber-800 transition">
         🔁 Main Lagi
       </button>
     </div>
@@ -177,77 +212,110 @@
 
 </main>
 
-<footer class="max-w-4xl mx-auto px-4 py-6 text-center text-xs text-stone-400 space-x-3">
-  <a href="panduan.html" class="underline hover:text-amber-600">Panduan</a>
-  <a href="tentang.html" class="underline hover:text-amber-600">Tentang</a>
+<footer class="max-w-4xl mx-auto px-4 py-6 text-center text-xs text-stone-600 space-x-3">
+  <a href="panduan.html" class="underline hover:text-amber-700">Panduan</a>
+  <a href="tentang.html" class="underline hover:text-amber-700">Tentang</a>
   <span>· ifs24019</span>
 </footer>
 
 <!-- ===================== MODAL: EXPENSE EDIT ===================== -->
-<div id="expense-edit-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-20 p-4">
+<div id="expense-edit-modal" role="dialog" aria-modal="true" aria-labelledby="expense-edit-heading"
+     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-20 p-4">
   <div class="bg-white rounded-2xl p-5 w-full max-w-md">
-    <h3 class="font-bold text-amber-700 mb-3">✏️ Ubah Transaksi</h3>
+    <h2 id="expense-edit-heading" class="font-bold text-amber-700 mb-3">✏️ Ubah Transaksi</h2>
     <form id="expense-edit-form" class="space-y-3">
-      <input id="expense-edit-title" type="text" required class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
-      <input id="expense-edit-category" type="text" required class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
-      <input id="expense-edit-amount" type="number" min="1" required class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
-      <select id="expense-edit-type" class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
-        <option value="expense">Pengeluaran</option>
-        <option value="income">Pemasukan</option>
-      </select>
-      <input id="expense-edit-date" type="date" required class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
+      <div>
+        <label for="expense-edit-title" class="block text-xs font-bold text-stone-700 mb-1">Judul transaksi</label>
+        <input id="expense-edit-title" name="title" type="text" required autocomplete="off" class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label for="expense-edit-category" class="block text-xs font-bold text-stone-700 mb-1">Kategori</label>
+        <input id="expense-edit-category" name="category" type="text" required autocomplete="off" class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label for="expense-edit-amount" class="block text-xs font-bold text-stone-700 mb-1">Jumlah (Rp)</label>
+        <input id="expense-edit-amount" name="amount" type="number" min="1" required autocomplete="off" class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label for="expense-edit-type" class="block text-xs font-bold text-stone-700 mb-1">Tipe</label>
+        <select id="expense-edit-type" name="type" class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
+          <option value="expense">Pengeluaran</option>
+          <option value="income">Pemasukan</option>
+        </select>
+      </div>
+      <div>
+        <label for="expense-edit-date" class="block text-xs font-bold text-stone-700 mb-1">Tanggal</label>
+        <input id="expense-edit-date" name="date" type="date" required class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
+      </div>
       <div class="flex justify-end gap-2 pt-2">
-        <button type="button" id="expense-edit-cancel" class="px-4 py-2 text-sm rounded-full border-2 border-amber-100">Batal</button>
-        <button type="submit" class="px-4 py-2 text-sm rounded-full bg-amber-500 text-white font-bold">Simpan</button>
+        <button type="button" id="expense-edit-cancel" class="px-4 py-2 text-sm rounded-full border-2 border-amber-200 text-stone-800">Batal</button>
+        <button type="submit" class="px-4 py-2 text-sm rounded-full bg-amber-700 text-white font-bold">Simpan</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- ===================== MODAL: EXPENSE DELETE ===================== -->
-<div id="expense-delete-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-20 p-4">
+<div id="expense-delete-modal" role="dialog" aria-modal="true" aria-labelledby="expense-delete-heading"
+     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-20 p-4">
   <div class="bg-white rounded-2xl p-5 w-full max-w-sm text-center">
-    <p class="text-3xl mb-2">🙀</p>
-    <p class="mb-4">Hapus transaksi ini? Tindakan tidak dapat dibatalkan.</p>
+    <p class="text-3xl mb-2" aria-hidden="true">🙀</p>
+    <h2 id="expense-delete-heading" class="mb-4 font-medium">Hapus transaksi ini? Tindakan tidak dapat dibatalkan.</h2>
     <div class="flex justify-center gap-2">
-      <button id="expense-delete-cancel" class="px-4 py-2 text-sm rounded-full border-2 border-amber-100">Batal</button>
-      <button id="expense-delete-confirm" class="px-4 py-2 text-sm rounded-full bg-rose-500 text-white font-bold">Hapus</button>
+      <button type="button" id="expense-delete-cancel" class="px-4 py-2 text-sm rounded-full border-2 border-amber-200 text-stone-800">Batal</button>
+      <button type="button" id="expense-delete-confirm" class="px-4 py-2 text-sm rounded-full bg-rose-700 text-white font-bold">Hapus</button>
     </div>
   </div>
 </div>
 
 <!-- ===================== MODAL: BOOKMARK EDIT ===================== -->
-<div id="bookmark-edit-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-20 p-4">
+<div id="bookmark-edit-modal" role="dialog" aria-modal="true" aria-labelledby="bookmark-edit-heading"
+     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-20 p-4">
   <div class="bg-white rounded-2xl p-5 w-full max-w-md">
-    <h3 class="font-bold text-amber-700 mb-3">✏️ Ubah Bookmark</h3>
+    <h2 id="bookmark-edit-heading" class="font-bold text-amber-700 mb-3">✏️ Ubah Bookmark</h2>
     <form id="bookmark-edit-form" class="space-y-3">
-      <input id="bookmark-edit-name" type="text" required class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
-      <input id="bookmark-edit-url" type="text" required class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
-      <input id="bookmark-edit-category" type="text" required class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
-      <input id="bookmark-edit-note" type="text" class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
+      <div>
+        <label for="bookmark-edit-name" class="block text-xs font-bold text-stone-700 mb-1">Nama / judul</label>
+        <input id="bookmark-edit-name" name="name" type="text" required autocomplete="off" class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label for="bookmark-edit-url" class="block text-xs font-bold text-stone-700 mb-1">URL (http/https)</label>
+        <input id="bookmark-edit-url" name="url" type="text" required autocomplete="off" class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label for="bookmark-edit-category" class="block text-xs font-bold text-stone-700 mb-1">Kategori / tag</label>
+        <input id="bookmark-edit-category" name="category" type="text" required autocomplete="off" class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label for="bookmark-edit-note" class="block text-xs font-bold text-stone-700 mb-1">Catatan (opsional)</label>
+        <input id="bookmark-edit-note" name="note" type="text" autocomplete="off" class="w-full border-2 border-amber-100 rounded-xl px-3 py-2 text-sm">
+      </div>
       <div class="flex justify-end gap-2 pt-2">
-        <button type="button" id="bookmark-edit-cancel" class="px-4 py-2 text-sm rounded-full border-2 border-amber-100">Batal</button>
-        <button type="submit" class="px-4 py-2 text-sm rounded-full bg-amber-500 text-white font-bold">Simpan</button>
+        <button type="button" id="bookmark-edit-cancel" class="px-4 py-2 text-sm rounded-full border-2 border-amber-200 text-stone-800">Batal</button>
+        <button type="submit" class="px-4 py-2 text-sm rounded-full bg-amber-700 text-white font-bold">Simpan</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- ===================== MODAL: BOOKMARK DELETE ===================== -->
-<div id="bookmark-delete-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-20 p-4">
+<div id="bookmark-delete-modal" role="dialog" aria-modal="true" aria-labelledby="bookmark-delete-heading"
+     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-20 p-4">
   <div class="bg-white rounded-2xl p-5 w-full max-w-sm text-center">
-    <p class="text-3xl mb-2">🙀</p>
-    <p class="mb-4">Hapus bookmark ini?</p>
+    <p class="text-3xl mb-2" aria-hidden="true">🙀</p>
+    <h2 id="bookmark-delete-heading" class="mb-4 font-medium">Hapus bookmark ini?</h2>
     <div class="flex justify-center gap-2">
-      <button id="bookmark-delete-cancel" class="px-4 py-2 text-sm rounded-full border-2 border-amber-100">Batal</button>
-      <button id="bookmark-delete-confirm" class="px-4 py-2 text-sm rounded-full bg-rose-500 text-white font-bold">Hapus</button>
+      <button type="button" id="bookmark-delete-cancel" class="px-4 py-2 text-sm rounded-full border-2 border-amber-200 text-stone-800">Batal</button>
+      <button type="button" id="bookmark-delete-confirm" class="px-4 py-2 text-sm rounded-full bg-rose-700 text-white font-bold">Hapus</button>
     </div>
   </div>
 </div>
 
-<!-- Toast notifikasi sederhana -->
-<div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-amber-600 text-white text-sm px-4 py-2 rounded-full shadow-lg hidden z-30"></div>
+<div id="toast" role="status" aria-live="polite"
+     class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-stone-800 text-white text-sm px-4 py-2 rounded-full shadow-lg hidden z-30"></div>
 
+<script src="assets/config.js"></script>
+<script src="assets/quiz-data.js"></script>
 <script src="assets/script.js"></script>
 </body>
 </html>
